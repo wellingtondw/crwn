@@ -3,7 +3,7 @@ import { Switch, Route } from 'react-router-dom';
 
 import './App.css';
 
-import { auth } from './services/firebase/firebase.util'
+import { auth, createUserProfileDocument } from './services/firebase/firebase.util'
 
 import HomePage from './pages/Home';
 import ShopPage from './pages/Shop';
@@ -15,10 +15,19 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(() => {
-    const unsubscribeFromAuth = auth.onAuthStateChanged(user => {
-      setCurrentUser(user)
+    const unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if(userAuth) {
+        const userRef = await createUserProfileDocument(userAuth)
 
-      console.log(user)
+        userRef.onSnapshot(snapshot => {
+          setCurrentUser({
+            id: snapshot.id,
+            ...snapshot.data()
+          })
+        })
+      }
+
+      setCurrentUser(userAuth)
     })
 
     return () => {
