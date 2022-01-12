@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux'
 
 import './App.css';
@@ -13,7 +13,7 @@ import AuthPage from './pages/Auth';
 import Header from './components/Header';
 import { setCurrentUser } from './redux/user/actions';
 
-function App({ setCurrentUser }) {
+function App({ currentUser, setCurrentUser }) {
 
   useEffect(() => {
     const unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
@@ -42,14 +42,18 @@ function App({ setCurrentUser }) {
       <Switch>
         <Route exact path='/' component={HomePage} />
         <Route path='/shop' component={ShopPage} />
-        <Route path='/auth' component={AuthPage} />
+        <Route exact  path='/auth' render={() => currentUser ? <Redirect to='/' /> : <AuthPage />}  />
       </Switch>
     </>
   );
 }
 
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser
+})
+
 const mapDispatchToProps = dispatch => ({
   setCurrentUser: user => dispatch(setCurrentUser(user))
 })
 
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);
