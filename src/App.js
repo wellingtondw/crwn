@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Switch, Route } from 'react-router-dom';
+import { connect } from 'react-redux'
 
 import './App.css';
 
@@ -10,9 +11,9 @@ import ShopPage from './pages/Shop';
 import AuthPage from './pages/Auth';
 
 import Header from './components/Header';
+import { setCurrentUser } from './redux/user/actions';
 
-function App() {
-  const [currentUser, setCurrentUser] = useState(null)
+function App({ setCurrentUser }) {
 
   useEffect(() => {
     const unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
@@ -37,7 +38,7 @@ function App() {
 
   return (
     <>
-      <Header currentUser={currentUser}/>
+      <Header />
       <Switch>
         <Route exact path='/' component={HomePage} />
         <Route path='/shop' component={ShopPage} />
@@ -47,4 +48,8 @@ function App() {
   );
 }
 
-export default App;
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user))
+})
+
+export default connect(null, mapDispatchToProps)(App);
